@@ -1,14 +1,17 @@
-from control_env import MysteryControlEnv
+from environment import MysteryControlEnv
 from agent import MySmartAgent
+import numpy as np
+import csv
+
+EPISODES = 50
 
 env = MysteryControlEnv()
 
 agent = MySmartAgent(env.action_space, env.observation_space)
 
-episodes = 10
-total_score = 0
+scores = []
 
-for i in range(episodes):
+for episode in range(EPISODES):
 
     obs, _ = env.reset()
     episode_reward = 0
@@ -22,19 +25,21 @@ for i in range(episodes):
         reward = agent.reward_function(obs, action, next_obs, terminated, truncated)
 
         episode_reward += reward
-
         obs = next_obs
 
         if terminated or truncated:
             break
 
-    print("Episode", i+1, "Score:", episode_reward)
+    scores.append(episode_reward)
 
-    total_score += episode_reward
+    print("Episode", episode+1, "Score:", episode_reward)
 
+mean_score = np.mean(scores)
 
-average_score = total_score / episodes
+print("\nAverage Score:", mean_score)
 
-print("Average Score:", average_score)
+with open("leaderboard/leaderboard.csv", "a", newline="") as f:
+    writer = csv.writer(f)
+    writer.writerow(["MySmartAgent", mean_score])
 
 env.close()
